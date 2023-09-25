@@ -1,7 +1,7 @@
 # votetally
 
-Tally up votes read from any number of input files in the Hare-Clark electoral
-system and declare the winner.
+Tally up votes read from a number of roles each with varable number of positions. The voting implementsthe Hare-Clark electoral
+system and declares the incoming committee.
 
 ## Usage
 
