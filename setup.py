@@ -21,10 +21,10 @@ def get_requirements():
     return requirements
 
 setup(
-    name='votetally', # the name of the module
-    packages=['votetally'], # the location of the module
+    name='vote-tally', # the name of the module
+    packages=['vote_tally'], # the location of the module
     version=0.1,
     install_requires=get_requirements(),
     python_requires='>=3.7',
-    entry_points={'console_scripts':['vtally= votetally:main']}
+    entry_points={'console_scripts':['vtally= vote_tally:main']}
 )
