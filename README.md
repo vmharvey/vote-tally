@@ -11,6 +11,11 @@ Goals:
 5. Bonus: Candidate preferences for roles
 6. Pass pylint
 
+## Installation for developers
+
+1. Clone the repo
+2. Run `pip install -e .` to install all dependencies with pip.
+
 ## Usage
 
 `vtally [args]`
