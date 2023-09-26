@@ -4,7 +4,6 @@ Determine a board for a committee from a set of votes
 """
 import pandas as pd
 import numpy as np
-from time import sleep
 
 def winner(total_votes,min_votes_req):
     for candidate in total_votes:
