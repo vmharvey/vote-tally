@@ -161,7 +161,9 @@ def first_algorithm(votes,people=1):
     winner : string
         The succesfully elected candidate
     """
+    print(votes)
     votes = verify(votes) # remove invalid votes
+    print(votes)
     n_voters = len(votes)
     min_votes_req = int(np.floor(n_voters/(people+1))+1)
     total_votes = count_total_votes(votes)
@@ -214,7 +216,7 @@ def verify(votes):
   
         # Check that voter has voted for each candidate
         # Each vote must be unique
-        for j in range(1,n_candids):
+        for j in range(1,n_candids+1):
             # Vote is invalid, break 
             if ((j in v_i) == False):
                 idx_drop.append(i)
