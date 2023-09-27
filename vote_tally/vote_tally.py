@@ -5,6 +5,7 @@ Determine a board for a committee from a set of votes
 import pandas as pd
 import numpy as np
 import sys
+import argparse
 import logging
 
 LOG = None
@@ -173,12 +174,12 @@ def first_algorithm(votes,people=1):
         LOG.debug(f"current total_votes = \n{total_votes}")
     return winner(total_votes,min_votes_req)
 
-def read_votes():
+def read_votes(input_file):
     """
     # Read votes in from a csv file into a data frame
     """
     
-    votes_df = pd.read_csv('data/test_votes.csv')
+    votes_df = pd.read_csv (input_file)
 
     return votes_df
 
@@ -186,17 +187,24 @@ def main():
     """
     # Reports the winner of the election from test data
     """
-    verbose = True
+    parser = argparse.ArgumentParser(
+            description='Determine the winner of an election')
+    parser.add_argument('-i','--input',
+        type=str,
+        default='data/test_votes.csv',
+        help='Input location of votes csv file')
+    parser.add_argument('-v','--verbose',action='store_true',help='Enable debug logging')
+    args = parser.parse_args()
 
     # configure logger
-    loglevel = logging.DEBUG if verbose else logging.INFO
+    loglevel = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(
         format="\x1b[33;20m[%(levelname)s] %(name)s:%(funcName)s:%(lineno)d\033[0m %(message)s",
         level=loglevel)
     global LOG
     LOG = logging.getLogger("vote_tally")
 
-    votes_df = read_votes()
+    votes_df = read_votes(args.input)
     output = first_algorithm(votes_df)
     LOG.info(f"the winner is {output}")
 
