@@ -5,6 +5,7 @@ Determine a board for a committee from a set of votes
 import pandas as pd
 import numpy as np
 import sys
+import argparse
 
 
 def winner(total_votes,min_votes_req):
@@ -167,12 +168,12 @@ def first_algorithm(votes,people=1):
         total_votes = count_total_votes(votes)
     return winner(total_votes,min_votes_req)
 
-def read_votes():
+def read_votes(input_file):
     """
     # Read votes in from a csv file into a data frame
     """
     
-    votes_df = pd.read_csv ('data/test_votes.csv')
+    votes_df = pd.read_csv (input_file)
 
     return votes_df
 
@@ -221,7 +222,18 @@ def main():
     """
     # Prints the winner of the election from test data
     """
-    votes_df = read_votes()
+    parser = argparse.ArgumentParser(
+            description='Determine the winner of an election')
+    parser.add_argument('-i','--input',
+        type=str,
+        default='data/test_votes.csv',
+        help='Input location of votes csv file')
+    parser.add_argument('-v','--verbose',action='store_true',help='Enable debug logging')
+    args = parser.parse_args()
+    
+    verbose = args.verbose
+    
+    votes_df = read_votes(args.input)
     output = first_algorithm(votes_df)
     print(output)
 

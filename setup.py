@@ -25,6 +25,6 @@ setup(
     packages=['vote_tally'], # the location of the module
     version=0.1,
     install_requires=get_requirements(),
-    python_requires='>=3.7',
+    python_requires='==3.7.*',
     entry_points={'console_scripts':['vtally= vote_tally:main']}
 )
