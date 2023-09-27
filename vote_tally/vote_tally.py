@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import sys
 
+
 def winner(total_votes,min_votes_req):
     """
     # Tells you the elected candidate for a role
@@ -156,6 +157,7 @@ def first_algorithm(votes,people=1):
     winner : string
         The succesfully elected candidate
     """
+    votes = verify(votes) # remove invalid votes
     n_voters = len(votes)
     min_votes_req = int(np.floor(n_voters/(people+1))+1)
     total_votes = count_total_votes(votes)
@@ -173,6 +175,47 @@ def read_votes():
     votes_df = pd.read_csv ('data/test_votes.csv')
 
     return votes_df
+
+def verify(votes):
+    """
+    Removes any invalid votes from the collected votes. 
+    Valid votes include every number is sequential, 
+    between 1 and number of votes, no repeated numbers and 
+    a vote made for every candidate.
+
+    Parameters
+    ----------
+    votes : pandas dataframe
+        Every column is a candidate. Every row is one ballot and
+        the preferential order for their votes.
+
+    Returns
+    -------
+    verified_votes : pandas dataframe
+        Dataframe of only votes which are valid
+    """
+
+    n_votes = votes.shape[0] # Number of votes
+    n_candids = votes.shape[1] # Number of candiates 
+    idx_drop = [] # Indices that are invalid and will be dropped
+
+    for i in range(n_votes):
+        # Votes for voter i
+        v_i = votes[i:i+1].values[0]
+        print(i)
+        # Check that voter has voted for each candidate
+        # Each vote must be unique
+        for j in range(1,n_candids):
+            # Vote is invalid, break 
+            if ((j in v_i) == False):
+                idx_drop.append(i)
+
+    # Drop invalid votes and return only valid votes
+    verified_votes = votes.drop(index=(idx_drop))
+
+    print("ID(s) of Invalid Votes are:", idx_drop)
+
+    return verified_votes
 
 def main():
     """
