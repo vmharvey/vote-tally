@@ -109,9 +109,10 @@ def remove_lowest(votes):
     candidates = list(votes.columns)
     removable_candidates = candidates
 
-    for rank in range(1,len(candidates)):
+    for rank in range(1,max(votes.values[0])+1):
         
         total_votes = count_total_votes(votes[removable_candidates],rank=rank)
+        
         lowest_votes = min(total_votes[total_votes['votes']>0]['votes'])
         lowest_candidates = total_votes[total_votes['votes']==lowest_votes]['candidate'].values
 
@@ -122,7 +123,7 @@ def remove_lowest(votes):
             return votes
 
         removable_candidates = lowest_candidates
-    sys.exit('No more votes to redistribute but no winners\nVote tally:\n'+str(count_total_votes(votes))+'\nBallot:\n'+str(votes))
+    sys.exit('No more votes to redistribute but no winners')
 
 def count_total_votes(votes,rank=1):
     """
@@ -161,9 +162,8 @@ def first_algorithm(votes,people=1):
     winner : string
         The succesfully elected candidate
     """
-    print(votes)
+
     votes = verify(votes) # remove invalid votes
-    print(votes)
     n_voters = len(votes)
     min_votes_req = int(np.floor(n_voters/(people+1))+1)
     total_votes = count_total_votes(votes)
@@ -223,8 +223,8 @@ def verify(votes):
 
     # Drop invalid votes and return only valid votes
     verified_votes = votes.drop(index=(idx_drop))
-
-    print("ID(s) of Invalid Votes are:", idx_drop)
+    
+    LOG.debug("ID(s) of Invalid Votes are: "+str(idx_drop))
 
     return verified_votes
 
