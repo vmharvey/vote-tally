@@ -55,6 +55,14 @@ def remove_lowest(total_votes,votes):
     votes : pandas dataframe
         Every column is a candidate. Every row is one ballot and
         the preferential order for their votes.
+
+    Returns
+    -------
+    votes : pandas dataframe
+        Every column is a candidate. Every row is one ballot and
+        the preferential order for their votes.
+        Now the worst-performing candidate has been removed.
+
     """
 
     lowest_votes = 999
