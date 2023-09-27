@@ -13,6 +13,8 @@ Goals:
 
 ## Installation for developers
 
+Only Python 3.7.x is tested and supported.
+
 1. Clone the repo
 2. Run `pip install -e .` to install all dependencies with pip.
 
