@@ -202,7 +202,7 @@ def verify(votes):
     for i in range(n_votes):
         # Votes for voter i
         v_i = votes[i:i+1].values[0]
-        print(i)
+  
         # Check that voter has voted for each candidate
         # Each vote must be unique
         for j in range(1,n_candids):
