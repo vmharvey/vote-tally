@@ -10,6 +10,7 @@ import logging
 
 LOG = None
 
+
 def winner(total_votes,min_votes_req):
     """
     # Tells you the elected candidate for a role
@@ -108,9 +109,10 @@ def remove_lowest(votes):
     candidates = list(votes.columns)
     removable_candidates = candidates
 
-    for rank in range(1,len(candidates)):
+    for rank in range(1,max(votes.values[0])+1):
         
         total_votes = count_total_votes(votes[removable_candidates],rank=rank)
+        
         lowest_votes = min(total_votes[total_votes['votes']>0]['votes'])
         lowest_candidates = total_votes[total_votes['votes']==lowest_votes]['candidate'].values
 
@@ -121,7 +123,7 @@ def remove_lowest(votes):
             return votes
 
         removable_candidates = lowest_candidates
-    sys.exit('No more votes to redistribute but no winners\nVote tally:\n'+str(count_total_votes(votes))+'\nBallot:\n'+str(votes))
+    sys.exit('No more votes to redistribute but no winners')
 
 def count_total_votes(votes,rank=1):
     """
@@ -160,6 +162,8 @@ def first_algorithm(votes,people=1):
     winner : string
         The succesfully elected candidate
     """
+
+    votes = verify(votes) # remove invalid votes
     n_voters = len(votes)
     min_votes_req = int(np.floor(n_voters/(people+1))+1)
     total_votes = count_total_votes(votes)
@@ -182,6 +186,47 @@ def read_votes(input_file):
     votes_df = pd.read_csv (input_file)
 
     return votes_df
+
+def verify(votes):
+    """
+    Removes any invalid votes from the collected votes. 
+    Valid votes include every number is sequential, 
+    between 1 and number of votes, no repeated numbers and 
+    a vote made for every candidate.
+
+    Parameters
+    ----------
+    votes : pandas dataframe
+        Every column is a candidate. Every row is one ballot and
+        the preferential order for their votes.
+
+    Returns
+    -------
+    verified_votes : pandas dataframe
+        Dataframe of only votes which are valid
+    """
+
+    n_votes = votes.shape[0] # Number of votes
+    n_candids = votes.shape[1] # Number of candiates 
+    idx_drop = [] # Indices that are invalid and will be dropped
+
+    for i in range(n_votes):
+        # Votes for voter i
+        v_i = votes[i:i+1].values[0]
+  
+        # Check that voter has voted for each candidate
+        # Each vote must be unique
+        for j in range(1,n_candids+1):
+            # Vote is invalid, break 
+            if ((j in v_i) == False):
+                idx_drop.append(i)
+
+    # Drop invalid votes and return only valid votes
+    verified_votes = votes.drop(index=(idx_drop))
+    
+    LOG.debug("ID(s) of Invalid Votes are: "+str(idx_drop))
+
+    return verified_votes
 
 def main():
     """
