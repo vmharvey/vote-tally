@@ -6,6 +6,9 @@ import pandas as pd
 import numpy as np
 import sys
 import argparse
+import logging
+
+LOG = None
 
 def winner(total_votes,min_votes_req):
     """
@@ -161,9 +164,14 @@ def first_algorithm(votes,people=1):
     min_votes_req = int(np.floor(n_voters/(people+1))+1)
     total_votes = count_total_votes(votes)
 
+    LOG.debug(f"initial votes = \n{votes}")
+    LOG.debug(f"initial total_votes = \n{total_votes}")
+
     while not winner(total_votes,min_votes_req):
         votes = remove_lowest(votes)
         total_votes = count_total_votes(votes)
+        LOG.debug(f"current votes = \n{votes}")
+        LOG.debug(f"current total_votes = \n{total_votes}")
     return winner(total_votes,min_votes_req)
 
 def read_votes(input_file):
@@ -177,7 +185,7 @@ def read_votes(input_file):
 
 def main():
     """
-    # Prints the winner of the election from test data
+    # Reports the winner of the election from test data
     """
     parser = argparse.ArgumentParser(
             description='Determine the winner of an election')
@@ -187,13 +195,18 @@ def main():
         help='Input location of votes csv file')
     parser.add_argument('-v','--verbose',action='store_true',help='Enable debug logging')
     args = parser.parse_args()
-    
-    verbose = args.verbose
-    
+
+    # configure logger
+    loglevel = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(
+        format="\x1b[33;20m[%(levelname)s] %(name)s:%(funcName)s:%(lineno)d\033[0m %(message)s",
+        level=loglevel)
+    global LOG
+    LOG = logging.getLogger("vote_tally")
+
     votes_df = read_votes(args.input)
     output = first_algorithm(votes_df)
-    print(output)
+    LOG.info(f"the winner is {output}")
 
 if __name__ == "__main__":
     main()
-
