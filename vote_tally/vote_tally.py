@@ -4,6 +4,7 @@ Determine a board for a committee from a set of votes
 """
 import pandas as pd
 import numpy as np
+import sys
 
 def winner(total_votes,min_votes_req):
     """
@@ -15,8 +16,8 @@ def winner(total_votes,min_votes_req):
 
     Parameters
     ----------
-    total_votes : dict
-        Dictionary of candidates and the amount of votes they have
+    total_votes : pandas dataframe
+        Dataframe of candidates and the amount of votes they have
     min_votes_req : int
         The minimum number of votes required to be elected
 
@@ -26,13 +27,46 @@ def winner(total_votes,min_votes_req):
         The name of the elected candidate.
         Returns with the bool False if there is not yet a winner.
     """
+    winners = total_votes[total_votes['votes']>=min_votes_req]['candidate'].values
+    if len(winners) == 0:
+        return False
+    elif len(winners) == 1:
+        return winners[0]
+    else:
+        sys.exit('You have two winners:'+str(winners))
 
-    for candidate in total_votes:
-        if total_votes[candidate] >= min_votes_req:
-            return candidate
-    return False
+def tidy(votes):
+    """
+    # Tidies the ballots
+    
+    Ensures every ballot starts at 1 and goes up from there
+    Also ensure no ranks are negative
 
-def remove_lowest(total_votes,votes):
+    Parameters
+    ----------
+    votes : pandas dataframe
+        Every column is a candidate. Every row is one ballot and
+        the preferential order for their votes.
+
+    Returns
+    -------
+    votes : pandas dataframe
+        Every column is a candidate. Every row is one ballot and
+        the preferential order for their votes.
+        Now all ballots should have a 
+    """
+    votes[votes<0] = 0
+    for index, row in votes.iterrows():
+        if max(row) > 1:
+            row_values = list(row[row>0].values)
+            row_values.sort()
+            replacements = range(1,len(row_values)+1)
+            for row_value, replacement in zip(row_values,replacements):
+                row[row==row_value] = replacement
+    votes[votes<0] = 0
+    return votes
+
+def remove_lowest(votes):
     """
     # Removes the least-votes candidate and redistributes
 
@@ -42,7 +76,9 @@ def remove_lowest(total_votes,votes):
 
     We find those ballots which list said candidate
     first, then redistribute those votes by subtracting 1 from
-    every element in the vote order.
+    every element in the vote order until there is a new 1st
+    ranked vote per ballot. Also, all votes for the removed
+    candidated are removed.
 
     Thus, for those affected ballots, their no. 2 choice
     becomes their no. 1 choice, and so on.
@@ -50,8 +86,8 @@ def remove_lowest(total_votes,votes):
     Parameters
     ----------
 
-    total_votes : dict
-        Dictionary of candidates and the amount of votes they have
+    total_votes : pandas dataframe
+        Dataframe of candidates and the amount of votes they have
     votes : pandas dataframe
         Every column is a candidate. Every row is one ballot and
         the preferential order for their votes.
@@ -64,16 +100,26 @@ def remove_lowest(total_votes,votes):
         Now the worst-performing candidate has been removed.
 
     """
+    
+    candidates = list(votes.columns)
+    removable_candidates = candidates
 
-    lowest_votes = 999
-    lowest_candidate = 'Nobody'
-    for candidate in total_votes:
-        if total_votes[candidate] < lowest_votes and total_votes[candidate] > 0:
-            lowest_candidate = candidate
-    votes[votes[lowest_candidate]==1]-=1
-    return votes
+    for rank in range(1,len(candidates)):
+        
+        total_votes = count_total_votes(votes[removable_candidates],rank=rank)
+        lowest_votes = min(total_votes[total_votes['votes']>0]['votes'])
+        lowest_candidates = total_votes[total_votes['votes']==lowest_votes]['candidate'].values
 
-def count_total_votes(votes):
+        if len(lowest_candidates) == 1:
+            votes[votes[lowest_candidates[0]]==1]-=1
+            votes[lowest_candidates[0]] = 0
+            votes = tidy(votes)
+            return votes
+
+        removable_candidates = lowest_candidates
+    sys.exit('No more votes to redistribute but no winners\nVote tally:\n'+str(count_total_votes(votes))+'\nBallot:\n'+str(votes))
+
+def count_total_votes(votes,rank=1):
     """
     # Count how many votes each candidate has
 
@@ -85,13 +131,14 @@ def count_total_votes(votes):
 
     Returns
     -------
-    total_votes : dict
-        Dictionary of candidates and the amount of votes they have
+    total_votes : pandas dataframe
+        Dataframe of candidates and the amount of votes they have
     """
-
-    total_votes = {}
-    for candidate in list(votes.columns):
-        total_votes.update({candidate:len(votes[votes[candidate]==1])})
+    candidates = list(votes.columns)
+    votes_count = []
+    for candidate in candidates:
+        votes_count.append(len(votes[votes[candidate]==rank]))
+    total_votes = pd.DataFrame({'candidate':candidates,'votes':votes_count})
     return total_votes
 
 def first_algorithm(votes,people=1):
@@ -109,13 +156,12 @@ def first_algorithm(votes,people=1):
     winner : string
         The succesfully elected candidate
     """
-
     n_voters = len(votes)
     min_votes_req = int(np.floor(n_voters/(people+1))+1)
     total_votes = count_total_votes(votes)
 
     while not winner(total_votes,min_votes_req):
-        votes = remove_lowest(total_votes,votes)
+        votes = remove_lowest(votes)
         total_votes = count_total_votes(votes)
     return winner(total_votes,min_votes_req)
 
