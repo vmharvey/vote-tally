@@ -230,6 +230,7 @@ def verify(votes):
             # Vote is invalid, break 
             if ((j in v_i) == False):
                 idx_drop.append(i)
+                break
 
     # Drop invalid votes and return only valid votes
     verified_votes = votes.drop(index=(idx_drop))
