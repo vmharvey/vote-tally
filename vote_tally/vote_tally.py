@@ -250,12 +250,17 @@ def main():
         default='data/test_votes.csv',
         help='Input location of votes csv file')
     parser.add_argument('-v','--verbose',action='store_true',help='Enable debug logging')
-    parser.add_argument('--order',action='store_true',help='Show candidate order')
+    parser.add_argument('-o', '--order',action='store_true',help='Show candidate order')
+    parser.add_argument('-c', '--cite',action='store_true',help='Print citation info')
     args = parser.parse_args()
 
     # configure logger
     if args.verbose:
         LOG.setLevel(logging.DEBUG)
+
+    if args.cite:
+        print("I. Barnsley, V.M. Harvey, S. Lee (2023) vote-tally")
+        sys.exit(0)
 
     votes_df = read_votes(args.input)
     output = first_algorithm(votes_df,show_order=args.order)

@@ -27,4 +27,10 @@ Only Python 3.7.x is tested and supported.
 
 ## Usage
 
-`vtally [-i data/test_votes.csv]`
+`vtally [-v] [-i data/test_votes.csv]`
+
+or use
+
+`vtally --cite`
+
+to print the citation info.
