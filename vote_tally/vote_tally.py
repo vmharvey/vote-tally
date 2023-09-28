@@ -3,7 +3,7 @@
 Determine a board for a committee from a set of votes
 """
 import pandas as pd
-import numpy as np
+from math import floor
 import sys
 import argparse
 import logging
@@ -175,7 +175,7 @@ def first_algorithm(votes,show_order=False,people=1):
 
     votes = verify(votes) # remove invalid votes
     n_voters = len(votes)
-    min_votes_req = int(np.floor(n_voters/(people+1))+1)
+    min_votes_req = int(floor(n_voters/(people+1))+1)
     total_votes = count_total_votes(votes)
 
     LOG.debug(f"initial votes = \n{votes}")
@@ -234,7 +234,8 @@ def verify(votes):
     # Drop invalid votes and return only valid votes
     verified_votes = votes.drop(index=(idx_drop))
     verified_votes = verified_votes.astype(int)
-    LOG.debug("ID(s) of Invalid Votes are: "+str(idx_drop))
+    LOG.info("Dropped "+str(len(idx_drop))+" invalid ballot(s)")
+    LOG.debug("ID(s) of Invalid ballots are: "+str(idx_drop))
 
     return verified_votes
 
