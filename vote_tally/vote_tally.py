@@ -8,7 +8,10 @@ import sys
 import argparse
 import logging
 
-LOG = None
+logging.basicConfig(
+    format="\x1b[33;20m[%(levelname)s] %(name)s:%(funcName)s:%(lineno)d\033[0m %(message)s",
+    level=logging.INFO)
+LOG = logging.getLogger("vote_tally")
 
 def winner(total_votes,min_votes_req,show_order=False):
     """
@@ -250,12 +253,8 @@ def main():
     args = parser.parse_args()
 
     # configure logger
-    loglevel = logging.DEBUG if args.verbose else logging.INFO
-    logging.basicConfig(
-        format="\x1b[33;20m[%(levelname)s] %(name)s:%(funcName)s:%(lineno)d\033[0m %(message)s",
-        level=loglevel)
-    global LOG
-    LOG = logging.getLogger("vote_tally")
+    if args.verbose:
+        LOG.setLevel(logging.DEBUG)
 
     votes_df = read_votes(args.input)
     output = first_algorithm(votes_df,show_order=args.order)
