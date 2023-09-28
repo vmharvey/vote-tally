@@ -17,8 +17,6 @@ def generate_ballots(n_candidates,n_voters):
         Number of candidates to generate (alphabetically)
     n_voters : int
         Number of voter ballots to generate
-    output : string
-        Output location of the csv
     """
     candidates = []
     for cand_no in range(n_candidates):
