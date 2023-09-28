@@ -1,12 +1,12 @@
-#! usr/bin/env python 
+#! usr/bin/env python
 """
 Determine a board for a committee from a set of votes
 """
-import pandas as pd
-from math import floor
 import sys
 import argparse
 import logging
+from math import floor
+import pandas as pd
 
 logging.basicConfig(
     format="\x1b[33;20m[%(levelname)s] %(name)s:%(funcName)s:%(lineno)d\033[0m %(message)s",
@@ -37,17 +37,16 @@ def winner(total_votes,min_votes_req,show_order=False):
     winners = total_votes[total_votes['votes']>=min_votes_req]['candidate'].values
     if len(winners) == 0:
         return False
-    elif len(winners) == 1:
+    if len(winners) == 1:
         if show_order:
             LOG.info(f"Final candidates:\n{total_votes[total_votes['votes']>0]}")
         return winners[0]
-    else:
-        sys.exit('You have two winners:'+str(winners))
+    sys.exit('You have two winners:'+str(winners))
 
 def tidy(votes):
     """
     # Tidies the ballots
-    
+
     Ensures every ballot starts at 1 and goes up from there
     Also ensure no ranks are negative
 
@@ -62,10 +61,10 @@ def tidy(votes):
     votes : pandas dataframe
         Every column is a candidate. Every row is one ballot and
         the preferential order for their votes.
-        Now all ballots should have a 
+        Now all ballots are properly formatted.
     """
     votes[votes<0] = 0
-    for index, row in votes.iterrows():
+    for _, row in votes.iterrows():
         if max(row) > 1:
             row_values = list(row[row>0].values)
             row_values.sort()
@@ -109,16 +108,16 @@ def remove_lowest(votes,show_order=False):
         Now the worst-performing candidate has been removed.
 
     """
-    
+
     candidates = list(votes.columns)
     removable_candidates = candidates
 
     for rank in range(1,max(votes.values[0])+1):
-        
+
         total_votes = count_total_votes(votes[removable_candidates],rank=rank)
         if max(total_votes['votes'])==0:
             continue
-        
+
         lowest_votes = min(total_votes[total_votes['votes']>0]['votes'])
         lowest_candidates = total_votes[total_votes['votes']==lowest_votes]['candidate'].values
 
@@ -192,16 +191,16 @@ def read_votes(input_file):
     """
     # Read votes in from a csv file into a data frame
     """
-    
+
     votes_df = pd.read_csv(input_file, dtype=float)
 
     return votes_df
 
 def verify(votes):
     """
-    Removes any invalid votes from the collected votes. 
-    Valid votes include every number is sequential, 
-    between 1 and number of votes, no repeated numbers and 
+    Removes any invalid votes from the collected votes.
+    Valid votes include every number is sequential,
+    between 1 and number of votes, no repeated numbers and
     a vote made for every candidate.
 
     Parameters
@@ -217,18 +216,18 @@ def verify(votes):
     """
 
     n_votes = votes.shape[0] # Number of votes
-    n_candids = votes.shape[1] # Number of candiates 
+    n_candids = votes.shape[1] # Number of candiates
     idx_drop = [] # Indices that are invalid and will be dropped
 
     for i in range(n_votes):
         # Votes for voter i
         v_i = votes[i:i+1].values[0]
-  
+
         # Check that voter has voted for each candidate
         # Each vote must be unique
         for j in range(1,n_candids+1):
-            # Vote is invalid, break 
-            if ((j in v_i) == False):
+            # Vote is invalid, break
+            if not j in v_i:
                 idx_drop.append(i)
                 break
 
