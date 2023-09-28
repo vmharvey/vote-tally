@@ -8,7 +8,10 @@ import sys
 import argparse
 import logging
 
-LOG = None
+logging.basicConfig(
+    format="\x1b[33;20m[%(levelname)s] %(name)s:%(funcName)s:%(lineno)d\033[0m %(message)s",
+    level=logging.INFO)
+LOG = logging.getLogger("vote_tally")
 
 def winner(total_votes,min_votes_req,show_order=False):
     """
@@ -190,7 +193,7 @@ def read_votes(input_file):
     # Read votes in from a csv file into a data frame
     """
     
-    votes_df = pd.read_csv (input_file)
+    votes_df = pd.read_csv(input_file, dtype=float)
 
     return votes_df
 
@@ -230,7 +233,7 @@ def verify(votes):
 
     # Drop invalid votes and return only valid votes
     verified_votes = votes.drop(index=(idx_drop))
-    
+    verified_votes = verified_votes.astype(int)
     LOG.debug("ID(s) of Invalid Votes are: "+str(idx_drop))
 
     return verified_votes
@@ -250,12 +253,8 @@ def main():
     args = parser.parse_args()
 
     # configure logger
-    loglevel = logging.DEBUG if args.verbose else logging.INFO
-    logging.basicConfig(
-        format="\x1b[33;20m[%(levelname)s] %(name)s:%(funcName)s:%(lineno)d\033[0m %(message)s",
-        level=loglevel)
-    global LOG
-    LOG = logging.getLogger("vote_tally")
+    if args.verbose:
+        LOG.setLevel(logging.DEBUG)
 
     votes_df = read_votes(args.input)
     output = first_algorithm(votes_df,show_order=args.order)
