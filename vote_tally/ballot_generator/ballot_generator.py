@@ -1,11 +1,10 @@
-#! usr/bin/env python 
+#! usr/bin/env python
 """
 Create a random, valid group of candidates and ballots
 in to a csv
 """
 import random
 import argparse
-import logging
 import pandas as pd
 
 def generate_ballots(n_candidates,n_voters,output):
@@ -37,9 +36,7 @@ def generate_ballots(n_candidates,n_voters,output):
         votes.append(tmp_vote)
 
     ballots = pd.DataFrame(votes,columns=candidates)
-    LOG.debug(str(ballots))
     ballots.to_csv(output,index=False)
-    
 
 def main():
     """
@@ -59,18 +56,9 @@ def main():
         type=int,
         default=20,
         help='Number of voters')
-    parser.add_argument('-v','--verbose',action='store_true',help='Enable debug logging')
     args = parser.parse_args()
 
-    # configure logger
-    loglevel = logging.DEBUG if args.verbose else logging.INFO
-    logging.basicConfig(
-        format="\x1b[33;20m[%(levelname)s] %(name)s:%(funcName)s:%(lineno)d\033[0m %(message)s",
-        level=loglevel)
-    global LOG
-    LOG = logging.getLogger("vote)creator")
-    
     generate_ballots(args.cand,args.voters,args.output)
-    
+
 if __name__ == "__main__":
     main()
