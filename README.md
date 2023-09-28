@@ -6,6 +6,8 @@ Tally up votes cast in a single transferrable vote ranked choice ballot (eg, for
 
 Eventually it will be able to tally votes for a number of roles each with varable number of positions, eg for a university club. The voting will implement the Hare-Clark electoral system and declare the incoming committee.
 
+[Click here to view the project documentation!](https://vmharvey.github.io/vote-tally/)
+
 ## Goals
 
 - [ ] 0. Funnier name
