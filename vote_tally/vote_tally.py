@@ -10,8 +10,7 @@ import logging
 
 LOG = None
 
-
-def winner(total_votes,min_votes_req):
+def winner(total_votes,min_votes_req,show_order=False):
     """
     # Tells you the elected candidate for a role
 
@@ -36,6 +35,8 @@ def winner(total_votes,min_votes_req):
     if len(winners) == 0:
         return False
     elif len(winners) == 1:
+        if show_order:
+            LOG.info(f"Final candidates:\n{total_votes[total_votes['votes']>0]}")
         return winners[0]
     else:
         sys.exit('You have two winners:'+str(winners))
@@ -71,7 +72,7 @@ def tidy(votes):
     votes[votes<0] = 0
     return votes
 
-def remove_lowest(votes):
+def remove_lowest(votes,show_order=False):
     """
     # Removes the least-votes candidate and redistributes
 
@@ -112,6 +113,8 @@ def remove_lowest(votes):
     for rank in range(1,max(votes.values[0])+1):
         
         total_votes = count_total_votes(votes[removable_candidates],rank=rank)
+        if max(total_votes['votes'])==0:
+            continue
         
         lowest_votes = min(total_votes[total_votes['votes']>0]['votes'])
         lowest_candidates = total_votes[total_votes['votes']==lowest_votes]['candidate'].values
@@ -120,9 +123,13 @@ def remove_lowest(votes):
             votes[votes[lowest_candidates[0]]==1]-=1
             votes[lowest_candidates[0]] = 0
             votes = tidy(votes)
+            if show_order:
+                LOG.info(f"Removed: {lowest_candidates[0]}")
             return votes
 
         removable_candidates = lowest_candidates
+    if show_order:
+        LOG.info(f"Final candidates:\n{total_votes[total_votes['votes']>0]}")
     sys.exit('No more votes to redistribute but no winners')
 
 def count_total_votes(votes,rank=1):
@@ -147,7 +154,7 @@ def count_total_votes(votes,rank=1):
     total_votes = pd.DataFrame({'candidate':candidates,'votes':votes_count})
     return total_votes
 
-def first_algorithm(votes,people=1):
+def first_algorithm(votes,show_order=False,people=1):
     """
     # Calculates the elected candidate for a role
 
@@ -171,8 +178,8 @@ def first_algorithm(votes,people=1):
     LOG.debug(f"initial votes = \n{votes}")
     LOG.debug(f"initial total_votes = \n{total_votes}")
 
-    while not winner(total_votes,min_votes_req):
-        votes = remove_lowest(votes)
+    while not winner(total_votes,min_votes_req,show_order=show_order):
+        votes = remove_lowest(votes,show_order=show_order)
         total_votes = count_total_votes(votes)
         LOG.debug(f"current votes = \n{votes}")
         LOG.debug(f"current total_votes = \n{total_votes}")
@@ -239,6 +246,7 @@ def main():
         default='data/test_votes.csv',
         help='Input location of votes csv file')
     parser.add_argument('-v','--verbose',action='store_true',help='Enable debug logging')
+    parser.add_argument('--order',action='store_true',help='Show candidate order')
     args = parser.parse_args()
 
     # configure logger
@@ -250,8 +258,8 @@ def main():
     LOG = logging.getLogger("vote_tally")
 
     votes_df = read_votes(args.input)
-    output = first_algorithm(votes_df)
-    LOG.info(f"the winner is {output}")
+    output = first_algorithm(votes_df,show_order=args.order)
+    LOG.info(f"The winner is: {output}")
 
 if __name__ == "__main__":
     main()
