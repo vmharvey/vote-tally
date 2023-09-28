@@ -190,7 +190,7 @@ def read_votes(input_file):
     # Read votes in from a csv file into a data frame
     """
     
-    votes_df = pd.read_csv (input_file)
+    votes_df = pd.read_csv(input_file, dtype=float)
 
     return votes_df
 
@@ -230,7 +230,7 @@ def verify(votes):
 
     # Drop invalid votes and return only valid votes
     verified_votes = votes.drop(index=(idx_drop))
-    
+    verified_votes = verified_votes.astype(int)
     LOG.debug("ID(s) of Invalid Votes are: "+str(idx_drop))
 
     return verified_votes
