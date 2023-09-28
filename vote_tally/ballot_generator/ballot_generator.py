@@ -7,7 +7,7 @@ import random
 import argparse
 import pandas as pd
 
-def generate_ballots(n_candidates,n_voters,output):
+def generate_ballots(n_candidates,n_voters):
     """
     Creates a csv of randomised candidates and votes
 
@@ -17,8 +17,6 @@ def generate_ballots(n_candidates,n_voters,output):
         Number of candidates to generate (alphabetically)
     n_voters : int
         Number of voter ballots to generate
-    output : string
-        Output location of the csv
     """
     candidates = []
     for cand_no in range(n_candidates):
@@ -36,7 +34,8 @@ def generate_ballots(n_candidates,n_voters,output):
         votes.append(tmp_vote)
 
     ballots = pd.DataFrame(votes,columns=candidates)
-    ballots.to_csv(output,index=False)
+
+    return ballots
 
 def main():
     """
@@ -58,7 +57,9 @@ def main():
         help='Number of voters')
     args = parser.parse_args()
 
-    generate_ballots(args.cand,args.voters,args.output)
+    ballots = generate_ballots(args.cand,args.voters)
+    
+    ballots.to_csv(args.output,index=False)
 
 if __name__ == "__main__":
     main()
