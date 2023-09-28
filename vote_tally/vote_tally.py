@@ -110,15 +110,17 @@ def remove_lowest(votes,show_order=False):
     """
 
     candidates = list(votes.columns)
-    removable_candidates = candidates
+    removable_candidates = []
+    for candidate in candidates:
+        if sum(votes[candidate].values) > 0:
+            removable_candidates.append(candidate)
 
     for rank in range(1,max(votes.values[0])+1):
 
         total_votes = count_total_votes(votes[removable_candidates],rank=rank)
         if max(total_votes['votes'])==0:
             continue
-
-        lowest_votes = min(total_votes[total_votes['votes']>0]['votes'])
+        lowest_votes = min(total_votes['votes'])
         lowest_candidates = total_votes[total_votes['votes']==lowest_votes]['candidate'].values
 
         if len(lowest_candidates) == 1:
